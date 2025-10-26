@@ -63,8 +63,8 @@ int main(void) {
 
     Insert(&list,
            &(InsertInfo){
-               .objects = &(Object){ .name = "kwadrat", .area = 25, .circumference = 5 }, .where = 0, .count = 4 });
-    Insert(&list, &(InsertInfo){ .objects = objects, .where = 2, .count = 3 });
+               .objects = &(Object){ .name = "kwadrat", .area = 25, .circumference = 5 }, .objectsCount = 1, .where = 0, .count = 4 });
+    Insert(&list, &(InsertInfo){ .objects = objects, .where = 2, .count = 5, .objectsCount = 3 });
 
     Node* it = list.root;
     while (it != NULL) {
@@ -74,6 +74,28 @@ int main(void) {
 
     FreeList(&list);
     return 0;
+}
+
+// rename it to prev and Node* it = NULL
+Node* InsertNext(Node it[static 1], InsertInfo InfoIn[static 1]) {
+    Node* prev = it;
+    size_t objectIdx = 0;
+    for(size_t i = 0; i < InfoIn->count; ++i){
+        it = malloc(sizeof(Node));
+        if(InfoIn->objectsCount == 1) {
+            it->object = *InfoIn->objects;
+        }
+        else {
+            it->object = InfoIn->objects[objectIdx];
+            objectIdx = (objectIdx + 1) % InfoIn->objectsCount;
+        }
+        if(prev != NULL) {
+            prev->next = it;
+        }
+        it->prev = prev;
+        prev = it;
+    }
+    return it;
 }
 
 Node* Insert(List list[static 1], InsertInfo infoIn[static 1]) {
@@ -86,7 +108,7 @@ Node* Insert(List list[static 1], InsertInfo infoIn[static 1]) {
         return NULL; ////////////////////////
     }
 
-    if (infoIn->count == 0) {
+    if (infoIn->count == 0 || infoIn->objectsCount == 0) {
         return NULL;
     }
 
@@ -98,20 +120,7 @@ Node* Insert(List list[static 1], InsertInfo infoIn[static 1]) {
         list->root = malloc(sizeof(Node));
         list->root->object = *infoIn->objects;
 
-        Node* prev = list->root;
-        Node* it = NULL;
-        for (size_t i = 0; i < infoIn->count; ++i) {
-            it = malloc(sizeof(Node));
-            if (infoIn->objects != NULL) {
-                list->root->object = infoIn->objects[i];
-            }
-            else {
-                list->root->object = *infoIn->objects;
-            }
-            prev->next = it;
-            it->prev = prev;
-            prev = it;
-        }
+        Node* it = InsertNext(list->root, infoIn);
 
         it->next = splitNext;
         list->size += infoIn->count;
@@ -130,6 +139,11 @@ Node* Insert(List list[static 1], InsertInfo infoIn[static 1]) {
     }
 
     Node* splitNext = it != NULL ? it : NULL;
+
+    it = InsertNext(splitPrev, infoIn);
+    it->next = splitNext;
+    list->size += infoIn->count;
+    return it;
 
     Node* prev = splitPrev;
     for (size_t i = 0; i < infoIn->count; ++i) {
