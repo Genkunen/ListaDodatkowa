@@ -1,3 +1,3 @@
 default:
-	@clang main.c -std=c11 -o main.exe
+	@clang main.c list.c -Ilist.h -std=c99 -o main.exe
 	@main.exe
