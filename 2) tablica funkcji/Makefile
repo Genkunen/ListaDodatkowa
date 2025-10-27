@@ -1,4 +1,4 @@
-NAME = gra_hanoi
+NAME = tablica_funkcji
 
 default: compile
 	@$(NAME).exe
