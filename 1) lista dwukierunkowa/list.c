@@ -33,14 +33,7 @@ void FreeList(List* list) {
     if (list == NULL || *list == NULL) {
         return;
     }
-    Node* curr = (*list)->root;
-    Node* next = NULL;
-    while ((next = Next(curr)) != NULL) {
-        free(curr);
-        curr = next;
-    }
-    free(curr);
-    (*list)->root = NULL;
+    Clear(*list);
     free(*list);
     *list = NULL;
 }
@@ -82,6 +75,7 @@ Node* Insert(List list, InsertInfo infoIn[static 1]) {
         if (splitNext != NULL) {
             splitNext->prev = it;
         }
+
         list->size += infoIn->count;
         return it;
     }
@@ -152,6 +146,7 @@ void Delete(List list, DeleteInfo infoIn[static 1]) {
         next = curr->next;
         free(curr);
         curr = next;
+        --list->size;
     }
 
     curr->prev = splitPrev;
@@ -160,6 +155,25 @@ void Delete(List list, DeleteInfo infoIn[static 1]) {
         return;
     }
     splitPrev->next = curr;
+}
+
+void Clear(List list) {
+    if(list == NULL) {
+        SetGlobalError(NULL_LIST);
+        return;
+    }
+    if(list->size == 0 && list->root == NULL){
+        return;
+    } 
+    Node* curr = list->root;
+    Node* next = Next(curr);
+    while(next != NULL) {
+        free(curr);
+        curr = next;
+        next = Next(curr);
+    }
+    list->root = NULL;
+    list->size = 0;
 }
 
 size_t GetSize(List list) {

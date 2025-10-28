@@ -26,10 +26,10 @@ typedef struct Node {
 } Node;
 
 typedef struct InsertInfo {
-    size_t where;        // pozycja gdzie dodac
-    size_t count;        // ile elementow dodajemy
-    size_t objectsCount; // ilosc elementow tablicy objects
-    Object* objects;     // gotowy/e element(y) do skopiowania
+    size_t where;        
+    size_t count;        
+    size_t objectsCount; 
+    Object* objects;     
 } InsertInfo;
 
 typedef struct DeleteInfo {
@@ -43,6 +43,7 @@ void FreeList(List* list);
 Node* Insert(List list, InsertInfo infoIn[static 1]);
 void Delete(List list, DeleteInfo infoIn[static 1]);
 size_t GetSize(List list);
+void Clear(List list);
 
 Node* Begin(List list);
 Node* Next(Node nodeIn[static 1]);

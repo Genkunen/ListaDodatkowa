@@ -5,71 +5,89 @@
 
 #include "list.h"
 
+void printList(List list) {
+    Node* it = Begin(list);
+   
+    printf("Size: %zu [", GetSize(list));
+    while(it != NULL) {
+        Object* obj = &it->object;
+        printf("%s:%g:%g", obj->name, obj->area, obj->circumference);
+        it = Next(it);
+        if(it != NULL){
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
+
+void printListReverse(List list) {
+    Node* it = Begin(list);
+    while(Next(it) != NULL) {
+        it = Next(it);
+    }
+    printf("Size: %zu [", GetSize(list));
+    while(it != NULL) {
+        Object* obj = &it->object;
+        printf("%s:%g:%g", obj->name, obj->area, obj->circumference);
+        it = Prev(it);
+        if(it != NULL){
+            printf(", ");
+        }
+    }
+    printf("] (reversed)\n");
+}
+
 int main(void) {
     List list = AllocateList();
-
-    // Insert(&list, &(InsertInfo){ .name = "123", .area = 15, .circumference = 10, .where = 0 });
-    // Insert(&list, &(InsertInfo){ .name = "123", .area = 15, .circumference = 10, .where = 1, .count = 5 });
-
-    const char* arr[] = { "1", "2", "3", "4", "5" };
-
-    // list.root = malloc(sizeof(Node));
-    // *list.root = (Node){ .name = arr[0] };
-    // Node* prev = list.root;
-    // Node* it = NULL;
-    // for (int i = 1; i < 5; ++i) {
-    //     it = malloc(sizeof(Node));
-    //     *it = (Node){ .name = arr[i] };
-    //     prev->next = it;
-    //     it->prev = prev;
-    //     prev = it;
-    // }
-    // list.size = 5;
-
-    Object objects[] = {
-        (Object){ .name = "1" }, (Object){ .name = "2" }, (Object){ .name = "3" },
-        (Object){ .name = "4" }, (Object){ .name = "5" },
+   
+    Object square = (Object){.name = "square", .area = 25, .circumference = 5, };
+    Object rectan = (Object){.name = "rectangle", .area = 20, .circumference = 7, };
+    Object many[] = {
+        (Object){.name = "square", .area = 10, .circumference = 2},
+        (Object){.name = "plane", .area = 0, .circumference = 3},
+        (Object){.name = "circle", .area = 6.28, .circumference = 2},
     };
+    InsertInfo ii = (InsertInfo){.objects = &square, .objectsCount = 1, .count = 1 };
+    DeleteInfo di = (DeleteInfo){};
 
-    InsertInfo ii = (InsertInfo){ .objects = &(Object){ .name = "kwadrat", .area = 25, .circumference = 5 },
-                                  .objectsCount = 1,
-                                  .where = 0,
-                                  .count = 4 };
+    // insert one and clear
     Insert(list, &ii);
-    Insert(list, &(InsertInfo){ .objects = objects, .where = 1, .count = 5, .objectsCount = 5 });
+    printList(list);
+    Clear(list);
 
-    Node* it = Begin(list);
-    while (it != NULL) {
-        printf("%s ", it->object.name);
-        if (Next(it) == NULL) {
-            break;
-        }
-        it = Next(it);
-    }
-    printf(" | ");
-    while (it != NULL) {
-        printf("%s ", it->object.name);
-        it = Prev(it);
-    }
+    // insert three
+    ii.count = 3;
+    Insert(list, &ii);
+    printList(list);
+    
+    // insert two in at the position 2
+    ii.count = 2;
+    ii.where = 2;
+    ii.objects = &rectan;
+    Insert(list, &ii);
+    printList(list);
 
-    printf("\n");
+    // delete first three
+    di.count = 3;
+    Delete(list, &di);
+    printList(list);
 
-    Delete(list, &(DeleteInfo){ .count = 2, .where = 1 });
-
-    it = Begin(list);
-    while (it != NULL) {
-        printf("%s ", it->object.name);
-        if (Next(it) == NULL) {
-            break;
-        }
-        it = Next(it);
-    }
-    printf(" | ");
-    while (it != NULL) {
-        printf("%s ", it->object.name);
-        it = Prev(it);
-    }
-
+    // insert from array and clear again
+    ii.where = 1;
+    ii.count = 3;
+    ii.objects = many;
+    ii.objectsCount = 3;
+    Insert(list, &ii);
+    printList(list);
+    Clear(list);
+  
+    // insert repeating array
+    ii.objectsCount = 2;
+    ii.where = 0;
+    ii.count = 6;
+    Insert(list, &ii);
+    printList(list);
+    printListReverse(list);
+    
     FreeList(&list);
-    return 0;
 }
