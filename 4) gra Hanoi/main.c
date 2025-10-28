@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <Windows.h>
 
 typedef struct Node {
     struct Node* prev;
@@ -17,48 +18,91 @@ int Top(Stack* stack);
 
 _Bool Move(Stack* from, Stack* to);
 
-void DisplayTowers(Stack* a, Stack* b, Stack* c) {
-    printf("\nTower A (size=%d), Tower B (size=%d), Tower C (size=%d)\n", a->size, b->size, c->size);
+void PrintRing(int indent, int size) {
+    printf(" ");
+    for(int i = 0; i < indent; ++i) {
+        printf(" ");
+    }
+    for(int i = 0; i < size * 2 - 1; ++i) {
+        printf("#");
+    }
+    for(int i = 0; i < indent; ++i) {
+        printf(" ");
+    }
+    printf(" ");
 }
-int main(void) {
-    Stack A = {};
-    Stack B = {};
-    Stack C = {};
 
-    const int HanoiSize = 3;
-    for (int i = HanoiSize; i > 0; --i) {
-        Add(&A, i);
+void DisplayTowers(Stack* a, Stack* b, Stack* c) {
+    int size = a->size + b->size + c->size;
+    int indent = size - 1;
+
+    Stack* stacks[3] = { a, b, c };
+    Node* nodes[3] = { a->head, b->head, c->head };
+
+    for(int s = 0; s < size; ++s) {
+        for(int n = 0; n < 3; ++n) {
+            if(stacks[n]->size >= size - s) {
+                PrintRing(size - nodes[n]->weight, nodes[n]->weight);
+                nodes[n] = nodes[n]->prev;
+            }
+            else {
+                for(int i = 0; i < size + 2 + 2; ++i) {
+                    printf(" ");
+                }
+            }
+        }
+        printf("\n");
+    } 
+
+}
+
+static int FalseState() {
+    return 0;
+}
+
+static int TrueState() {
+    return 1;
+}
+
+int ProperStackName(char c) {
+    return c == 'A' || c == 'B' || c == 'C';
+}
+
+int main(void) {
+    Stack stacks[] = { {}, {}, {}};
+
+    int size = {};
+    printf("Hanoi size: ");
+    scanf_s("%d", &size);
+
+    for(int i = size; i > 0; --i) {
+        Add(&stacks[0], i);
     }
 
-    {
-        struct Move {
-            Stack* from;
-            Stack* to;
-        };
+    int(*shouldQuit)() = FalseState; 
 
-        // clang-format off
-        struct Move moves[] = {
-            (struct Move){ &A, &C },
-            (struct Move){ &A, &B },
-            (struct Move){ &C, &B },
-            (struct Move){ &A, &C },
-            (struct Move){ &B, &A },
-            (struct Move){ &B, &C },
-            (struct Move){ &A, &C },
-            (struct Move){ &C, &A },
-            (struct Move){ &C, &A },
-        };
-        // clang-format on
+    int moveN = 0;
+    char from = {};
+    char to = {};
+    while(!shouldQuit()) {
+        system("cls");
+        DisplayTowers(&stacks[0], &stacks[1], &stacks[2]);
 
-        DisplayTowers(&A, &B, &C);
-        int movesSize = sizeof(moves) / sizeof(struct Move);
-        for (struct Move* it = moves; it < moves + movesSize; ++it) {
-            if (!Move(it->from, it->to)) {
-                printf("Nielegalny ruch!\n");
-                return 1;
-            }
-            DisplayTowers(&A, &B, &C);
-        }
+        do {
+            printf("From: ");
+            from = getchar();
+        } while(!ProperStackName(from));
+        do {
+            printf(" To: ");
+            from = getchar();
+        } while(!ProperStackName(to));
+
+        Stack* fromS = &stacks[from - 'A'];
+        Stack* toS = &stacks[to - 'A'];
+        int err = Move(fromS, toS);
+        if(stacks[2].size == size) {
+            shouldQuit = TrueState;
+        }        
     }
 
     return 0;
