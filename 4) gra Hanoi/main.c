@@ -46,7 +46,7 @@ void DisplayTowers(Stack* a, Stack* b, Stack* c) {
                 nodes[n] = nodes[n]->prev;
             }
             else {
-                for(int i = 0; i < size + 2 + 2; ++i) {
+                for(int i = 0; i < (size - 1) * 2 + 3; ++i) {
                     printf(" ");
                 }
             }
@@ -65,6 +65,7 @@ static int TrueState() {
 }
 
 int ProperStackName(char c) {
+    c = toupper(c);
     return c == 'A' || c == 'B' || c == 'C';
 }
 
@@ -88,14 +89,14 @@ int main(void) {
         system("cls");
         DisplayTowers(&stacks[0], &stacks[1], &stacks[2]);
 
-        do {
-            printf("From: ");
+        printf("From: ");
+        while(!ProperStackName(from)){
             from = getchar();
-        } while(!ProperStackName(from));
-        do {
-            printf(" To: ");
-            from = getchar();
-        } while(!ProperStackName(to));
+        }
+        printf(" To: ");
+        while(!ProperStackName(to)){
+            to = getchar();
+        }
 
         Stack* fromS = &stacks[from - 'A'];
         Stack* toS = &stacks[to - 'A'];
@@ -103,7 +104,11 @@ int main(void) {
         if(stacks[2].size == size) {
             shouldQuit = TrueState;
         }        
+        to = from = 0;
     }
+
+    system("cls");
+    DisplayTowers(&stacks[0], &stacks[1], &stacks[2]);
 
     return 0;
 }
